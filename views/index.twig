@@ -1,5 +1,6 @@
 {% extends 'layout.twig' %} {% block body %} <script>
   $(document).ready(function () {
+    // TABLE STUFF
     $('.oncall').html('On-call pickup only');
     $('#master-table').DataTable({
       'paging': false,
@@ -10,14 +11,12 @@
         "title": "Route"
       }, {
         "title": "Next Date"
-      }, {
-        "title": "Region"
       }]
     });
 
     function hidePast() {
       $("#master-table td:nth-child(2)").each(function () {
-        if ($(this).text().indexOf("No more this year!") != -1) {
+        if ($(this).text().indexOf("No more") != -1 || $(this).text().indexOf("On-call") != -1) {
           $(this).parent("tr").css("display", "none");
         }
       });
@@ -25,7 +24,7 @@
 
     function showPast() {
       $("#master-table td:nth-child(2)").each(function () {
-        if ($(this).text().indexOf("No more this year!") != -1) {
+        if ($(this).text().indexOf("No more") != -1 || $(this).text().indexOf("On-call") != -1) {
           $(this).parent("tr").css("display", "table-row");
         }
       });
@@ -41,24 +40,52 @@
 </script>
 <h1><img class="logo" src="images/raccoon.svg" /> {{title}}</h1>
 <hr />
-<p>Welcome to {{title}}. We are tracking {{areacount}} areas.</p>
-<!-- p> {{ dump(datearr[2]) }}</p -->
+<p>Welcome to {{title}}. We are tracking {{areacount}} areas. &nbsp; &#9758;Work in progress&#9756;</p>
+<pre id="dump"><!--a useful twig dump: dump(datearr[2].geometry[0][0])--></pre>
 <div class="row">
-  <div class="col-xs-12 col-sm-6 col-md-6 col-lg-5 hackfix">
+  <div class="col-xs-12 col-sm-6 col-md-6 col-lg-5">
     <p><input type="checkbox" id="toggle-past" name="toggle" value="0" />
       <label for="toggle-past">Hide areas that don't have any more dates this year</label></p>
     <table id="master-table" class="table table-sm table-bordered sortable">
       <tbody> {% for object in datearr %} <tr scope="row">
           <td>{{datearr[loop.index0].route}}</td>
           <td data-sort={{datearr[loop.index0].nextdatesortable}} class={{datearr[loop.index0].nextdateclass}}>{{datearr[loop.index0].nextdate}}</td>
-          <td>coming soon</td>
         </tr> {% endfor %} </tbody>
     </table>
   </div>
   <div class="col-xs-12 col-sm-6 col-md-6 col-lg-7">
-    <div id="map"><img src="https://via.placeholder.com/400x600.png?text=Future+Map" style="width:100%;" /></div>
+    <div id="map"></div>
   </div>
 </div> {% block footer %} <footer>
   <hr />
-  <p>App by Emily &nbsp; | &nbsp; Icon made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">flaticon.com</a></p>
-</footer> {% endblock %} {% endblock %}
+  <p>App by <a href="mailto:emily@empul.se">emily@empul.se</a> &nbsp; | &nbsp; Icon made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">flaticon.com</a> &nbsp; | &nbsp; Data from <a href="https://data.austintexas.gov/Locations-and-Maps/Bulk-Item-Collection-Routes/qxkq-859w">The City of Austin</a></p>
+</footer> {% endblock %} 
+
+
+<script>
+  // MAP STUFF
+  // initial display
+  var mymap = L.map('map').setView([30.259152, -97.759355], 11);
+  L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZW1rYW1wIiwiYSI6ImNrMjI5OWtiMTBobXMzaG9jZXlsbWs4cjIifQ.yjzXANzD64mac1HK-JRC4w', {
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    maxZoom: 18,
+    id: 'mapbox.streets',
+    accessToken: 'pk.eyJ1IjoiZW1rYW1wIiwiYSI6ImNrMjI5OWtiMTBobXMzaG9jZXlsbWs4cjIifQ.yjzXANzD64mac1HK-JRC4w'
+  }).addTo(mymap);
+
+  //adding geojson multipolygon coords
+  var thisGeom0 = {"type":"MultiPolygon","coordinates":[[[[-97.68623970424073,30.381937349985318],[-97.68687432119704,30.380903896603748],[-97.68764869614748,30.37954903762047],[-97.68828869379219,30.378481584399193],[-97.68870859949413,30.37769492042065],[-97.68891040454734,30.37736483218543],[-97.6892845274524,30.37677567175871],[-97.68974742052421,30.37596152831923],[-97.69020736276273,30.375254759609348],[-97.69076773074454,30.37412906832246],[-97.69117504386145,30.373603453381406],[-97.69124645744563,30.373509424814475],[-97.69165297262613,30.372741863746814],[-97.69247810942775,30.37126667466254],[-97.6928266282369,30.37060535318783],[-97.69305820931197,30.370192310019277],[-97.6935514963229,30.36927134307988],[-97.69375489989139,30.368881593755752],[-97.69396994346917,30.368466589258844],[-97.69446630976272,30.367535364701045],[-97.69549344350607,30.365718128649196],[-97.6959565573692,30.364892032427434],[-97.69697362593226,30.363109391193937],[-97.69780762943878,30.361635353977615],[-97.69811089135763,30.361116338897023],[-97.69912152362208,30.359394237345157],[-97.6997001750422,30.358367566063304],[-97.70005812080598,30.357861607210925],[-97.7002608226322,30.35749570919899],[-97.70060044566225,30.35715649655669],[-97.70098231521163,30.356782337969577],[-97.70192261129228,30.3561212021915],[-97.70265393371845,30.355551272622936],[-97.70406857773851,30.35452360428121],[-97.70549269534742,30.353412990318372],[-97.70717730498586,30.352206009562913],[-97.7091673790892,30.350802839702872],[-97.71009418853073,30.350224415581366],[-97.71088174089753,30.349607841838864],[-97.71140499531884,30.349093296415898],[-97.71193153223494,30.348396774298035],[-97.71234719423134,30.34779748035005],[-97.71282502320277,30.34779045137372],[-97.713333201504,30.347972229887915],[-97.71392274247074,30.34824952883494],[-97.71420306627495,30.348377963656876],[-97.71464981121886,30.348491902787657],[-97.71623348581015,30.349232831908704],[-97.71701875018861,30.349660017772848],[-97.71784553181297,30.35004430476144],[-97.71855347786457,30.350347430091404],[-97.71924102882852,30.350658883827116],[-97.72018619842923,30.351141798059732],[-97.72103316814813,30.351526475374516],[-97.72197930202819,30.35197440317005],[-97.72317440616126,30.352541117086897],[-97.72493684390749,30.35339055195714],[-97.72590317747652,30.353838860946603],[-97.72695836519259,30.35435895331067],[-97.72989612554812,30.355765834781643],[-97.73082265017457,30.35619580144258],[-97.73026688815561,30.35823698446455],[-97.7301256192808,30.358757136137566],[-97.72977414903583,30.360172768823347],[-97.72932147477196,30.361849084057013],[-97.72906229860479,30.362961367749303],[-97.72893144606003,30.363342929519703],[-97.72863684943322,30.364566493550672],[-97.72825228091543,30.366062788707012],[-97.72782191101474,30.367725275520108],[-97.72759682964974,30.368413069303706],[-97.72740818694221,30.36928066333703],[-97.72701369035772,30.370633505901843],[-97.7268119234553,30.371476957947095],[-97.72635075979768,30.37325818895314],[-97.72590264116316,30.375344144780623],[-97.72540424191261,30.377482737215107],[-97.7247965862297,30.380096601093655],[-97.72465176019365,30.380869584508364],[-97.72400181053015,30.383518397807926],[-97.72351773426125,30.385633401823952],[-97.72272787879382,30.38814977452818],[-97.72198578459141,30.390341363743186],[-97.72170692260246,30.391166958007787],[-97.7203400844274,30.39081053381692],[-97.71846408407066,30.39045030263814],[-97.71746796905163,30.390306146565283],[-97.71683972978332,30.39029333540465],[-97.71610638547102,30.390281079281493],[-97.71506184344246,30.390529532724663],[-97.71396661303062,30.39087872478727],[-97.71335750928093,30.391213066144473],[-97.71306252473394,30.39155382059447],[-97.71276551954804,30.391968842896034],[-97.71246985766724,30.392334352167182],[-97.71205996550395,30.39269752697549],[-97.71156709157968,30.3929599251192],[-97.71099191007755,30.39309678947285],[-97.7105336493142,30.393136961839023],[-97.7098502991067,30.39304868035404],[-97.70928319969143,30.392888463117792],[-97.70832090941396,30.392367108612074],[-97.7032477658175,30.39024418262155],[-97.70220103123623,30.389745648431248],[-97.70016633307463,30.388563585872088],[-97.69855426252366,30.387634524334516],[-97.69773498376982,30.387163895718682],[-97.69572404147583,30.38609860760212],[-97.6943465007982,30.38543030317588],[-97.69356527394656,30.385041881248515],[-97.69282079144236,30.384782205708653],[-97.69191726021273,30.384449435584955],[-97.6910089744037,30.38409158737284],[-97.69018972057123,30.38375269988066],[-97.68934463358987,30.38331419446917],[-97.68889591516502,30.38300770491833],[-97.68787476318391,30.382738950327365],[-97.68674823461484,30.382146002890327],[-97.68623970424073,30.381937349985318]]]]}
+  var routeLayer = L.geoJSON().addTo(mymap);
+  var thisGeomArr = [];
+  //routeLayer.addData(thisGeom0);
+  //datearr[loop.index0].geometry[0][0]
+  //alert(title); cannot work.  alert("{{ title }}"); this works!
+  {% for object in datearr %}
+    var thisGeom = {{ datearr[loop.index0].geometry|json_encode }}; //THIS WORKS, just gotta figure out how to get it into the map
+    thisGeomArr.push(thisGeom);
+    //$('#dump').append( typeof thisGeom + " >  " + thisGeom + "<br />");
+  {% endfor %} 
+  routeLayer.addData(thisGeomArr); //dunno?
+  //$('#dump').append("<hr>" + routeLayer);
+
+</script> {% endblock %}

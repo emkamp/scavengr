@@ -1,4 +1,5 @@
 // 'npm start' to start server at http://127.0.0.1:3000/
+console.log("Analyzing trash patterns...");
 
 var express = require('express');
 var router = express.Router();
@@ -11,7 +12,7 @@ var areaCount = '[area count]';
 var dataParsed = {};
 var dateArr = [];
 var today = moment().toISOString();
-console.log("today is " + today);
+console.log(" >Today is " + today);
 
 function sortableDate(date) {
   moment(date, 'll').toISOString();
@@ -30,10 +31,12 @@ https.get('https://data.austintexas.gov/resource/ffwg-tmw3.json', (resp) => {
   resp.on('end', () => {
     dataParsed = JSON.parse(data);
     areaCount = Object.keys(dataParsed).length;
-    //console.log('areaCount = ' + areaCount);
+    console.log(" >Tracking " + areaCount + " areas");
 
     for (var i = 0; i < areaCount; i++) {
       var thisRoute = dataParsed[i].route_labl;
+      var isOnCall = dataParsed[i].dat_lab_jj;
+      var areaGeom = dataParsed[i].the_geom;
 
       var nextDate = dataParsed[i].date_jan_jn;
       var nextNextDate = dataParsed[i].date_jul_dc;
@@ -41,24 +44,30 @@ https.get('https://data.austintexas.gov/resource/ffwg-tmw3.json', (resp) => {
       var nextDatePretty = '';
       var nextDateClass = '';
 
-      var next = [
-        nextDate,
-        nextNextDate
-      ].map(function(s){
-        return moment(s);
-      })
-      .sort(function(m){
-        return m.valueOf();
-      })
-      .find(function(m){return m.isAfter();});
-      
-      if (next) {
-        nextDatePretty = next.format("ll");
-        nextDateSortable = moment(next).subtract(1, 'day').toISOString();
-      }
-      else {
-        nextDatePretty = "No more this year!";
-        nextDateClass = "past";
+      if (isOnCall == 'On Call') {
+        nextDatePretty = 'On-call only';
+        nextDateClass = 'on-call';
+      } else {
+        var next = [
+            nextDate,
+            nextNextDate
+          ].map(function (s) {
+            return moment(s);
+          })
+          .sort(function (m) {
+            return m.valueOf();
+          })
+          .find(function (m) {
+            return m.isAfter();
+          });
+
+        if (next) {
+          nextDatePretty = next.format("ll");
+          nextDateSortable = moment(next).subtract(1, 'day').toISOString();
+        } else {
+          nextDatePretty = "No more this year!";
+          nextDateClass = "past";
+        }
       }
 
       let obj = {
@@ -66,13 +75,15 @@ https.get('https://data.austintexas.gov/resource/ffwg-tmw3.json', (resp) => {
         nextdate: nextDatePretty,
         nextdatesortable: nextDateSortable,
         nextdateclass: nextDateClass,
+        geometry: areaGeom
       };
 
       dateArr.push(obj);
 
-      /*console.log("- - - - - - - - - - - - - - - -");
-      console.log(obj);
-      console.log(nextDatePretty + " should match " + nextDateSortable);*/
+      if ((i + 1) == (areaCount)) {
+        console.log(dateArr[0].geometry);
+        console.log("Done!");
+      }
     }
   });
 
@@ -86,9 +97,8 @@ router.get('/', function (req, res, next) {
   res.render('index', {
     title: 'Scavengr',
     areacount: areaCount,
-    dataparsed: dataParsed,
+    //dataparsed: dataParsed,
     datearr: dateArr
   });
 });
-console.log("Ready!");
 module.exports = router;
