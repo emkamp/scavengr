@@ -1,47 +1,64 @@
-{% extends 'layout.twig' %} {% block body %} 
-
-<script>
+{% extends 'layout.twig' %} {% block body %} <script>
   $(document).ready(function () {
     $('.oncall').html('On-call pickup only');
     $('#master-table').DataTable({
       'paging': false,
       'searching': false,
       'info': false,
-      'dom': 't', 
-       'columns': [
-            { "title": "Route" },
-            { "title": "Next Date" },
-            { "title": "Region" }
-        ]
+      'dom': 't',
+      'columns': [{
+        "title": "Route"
+      }, {
+        "title": "Next Date"
+      }, {
+        "title": "Region"
+      }]
+    });
+
+    function hidePast() {
+      $("#master-table td:nth-child(2)").each(function () {
+        if ($(this).text().indexOf("No more this year!") != -1) {
+          $(this).parent("tr").css("display", "none");
+        }
+      });
+    }
+
+    function showPast() {
+      $("#master-table td:nth-child(2)").each(function () {
+        if ($(this).text().indexOf("No more this year!") != -1) {
+          $(this).parent("tr").css("display", "table-row");
+        }
+      });
+    }
+    $('#toggle-past').click(function () {
+      if ($('#toggle-past').is(':checked')) {
+        hidePast();
+      } else {
+        showPast();
+      }
     });
   });
 </script>
-
 <h1><img class="logo" src="images/raccoon.svg" /> {{title}}</h1>
 <hr />
 <p>Welcome to {{title}}. We are tracking {{areacount}} areas.</p>
-
+<!-- p> {{ dump(datearr[2]) }}</p -->
 <div class="row">
   <div class="col-xs-12 col-sm-6 col-md-6 col-lg-5 hackfix">
-    <table id="master-table" class="table table-striped table-sm table-bordered sortable">
-      <tbody> {% for object in datearr %} 
-        <tr scope="row">
+    <p><input type="checkbox" id="toggle-past" name="toggle" value="0" />
+      <label for="toggle-past">Hide areas that don't have any more dates this year</label></p>
+    <table id="master-table" class="table table-sm table-bordered sortable">
+      <tbody> {% for object in datearr %} <tr scope="row">
           <td>{{datearr[loop.index0].route}}</td>
           <td data-sort={{datearr[loop.index0].nextdatesortable}} class={{datearr[loop.index0].nextdateclass}}>{{datearr[loop.index0].nextdate}}</td>
           <td>coming soon</td>
-        </tr> {% endfor %} 
-      </tbody>
-    </table> 
+        </tr> {% endfor %} </tbody>
+    </table>
   </div>
   <div class="col-xs-12 col-sm-6 col-md-6 col-lg-7">
-    <div id="map"><img src="https://via.placeholder.com/400x600.png?text=Future+Map" style="width:100%;"/></div>
+    <div id="map"><img src="https://via.placeholder.com/400x600.png?text=Future+Map" style="width:100%;" /></div>
   </div>
-</div>
-
-{% block footer %} 
-<footer>
+</div> {% block footer %} <footer>
   <hr />
   <p>App by Emily &nbsp; | &nbsp; Icon made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">flaticon.com</a></p>
-</footer> 
-{% endblock %} 
-{% endblock %}
+</footer> {% endblock %} {% endblock %}

@@ -14,7 +14,7 @@ var today = moment().toISOString();
 console.log("today is " + today);
 
 function sortableDate(date) {
-  moment(date).toISOString();
+  moment(date, 'll').toISOString();
   return date;
 }
 
@@ -37,8 +37,8 @@ https.get('https://data.austintexas.gov/resource/ffwg-tmw3.json', (resp) => {
 
       var nextDate = dataParsed[i].date_jan_jn;
       var nextNextDate = dataParsed[i].date_jul_dc;
-      var nextDatePretty = '';
       var nextDateSortable = sortableDate(nextDate);
+      var nextDatePretty = '';
       var nextDateClass = '';
 
       var next = [
@@ -54,13 +54,13 @@ https.get('https://data.austintexas.gov/resource/ffwg-tmw3.json', (resp) => {
       
       if (next) {
         nextDatePretty = next.format("ll");
+        nextDateSortable = moment(next).subtract(1, 'day').toISOString();
       }
       else {
         nextDatePretty = "No more this year!";
         nextDateClass = "past";
       }
 
-      console.log(nextDatePretty);
       let obj = {
         route: thisRoute,
         nextdate: nextDatePretty,
@@ -69,7 +69,10 @@ https.get('https://data.austintexas.gov/resource/ffwg-tmw3.json', (resp) => {
       };
 
       dateArr.push(obj);
-      //console.log(obj);
+
+      /*console.log("- - - - - - - - - - - - - - - -");
+      console.log(obj);
+      console.log(nextDatePretty + " should match " + nextDateSortable);*/
     }
   });
 
@@ -87,5 +90,5 @@ router.get('/', function (req, res, next) {
     datearr: dateArr
   });
 });
-
+console.log("Ready!");
 module.exports = router;
