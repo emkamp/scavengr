@@ -1,0 +1,47 @@
+{% extends 'layout.twig' %} {% block body %} 
+
+<script>
+  $(document).ready(function () {
+    $('.oncall').html('On-call pickup only');
+    $('#master-table').DataTable({
+      'paging': false,
+      'searching': false,
+      'info': false,
+      'dom': 't', 
+       'columns': [
+            { "title": "Route" },
+            { "title": "Next Date" },
+            { "title": "Region" }
+        ]
+    });
+  });
+</script>
+
+<h1><img class="logo" src="images/raccoon.svg" /> {{title}}</h1>
+<hr />
+<p>Welcome to {{title}}. We are tracking {{areacount}} areas.</p>
+
+<div class="row">
+  <div class="col-xs-12 col-sm-6 col-md-6 col-lg-5 hackfix">
+    <table id="master-table" class="table table-striped table-sm table-bordered sortable">
+      <tbody> {% for object in datearr %} 
+        <tr scope="row">
+          <td>{{datearr[loop.index0].route}}</td>
+          <td data-sort={{datearr[loop.index0].nextdatesortable}} class={{datearr[loop.index0].nextdateclass}}>{{datearr[loop.index0].nextdate}}</td>
+          <td>coming soon</td>
+        </tr> {% endfor %} 
+      </tbody>
+    </table> 
+  </div>
+  <div class="col-xs-12 col-sm-6 col-md-6 col-lg-7">
+    <div id="map"><img src="https://via.placeholder.com/400x600.png?text=Future+Map" style="width:100%;"/></div>
+  </div>
+</div>
+
+{% block footer %} 
+<footer>
+  <hr />
+  <p>App by Emily &nbsp; | &nbsp; Icon made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">flaticon.com</a></p>
+</footer> 
+{% endblock %} 
+{% endblock %}

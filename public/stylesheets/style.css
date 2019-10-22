@@ -1,0 +1,30 @@
+body {
+  padding: 30px; }
+
+a {
+  color: #00B7FF; }
+
+.logo {
+  width: 50px;
+  height: 50px; }
+
+.past {
+  color: #999; }
+
+#map {
+  background-color: #dde; }
+
+footer {
+  font-size: 0.8rem;
+  color: #999; }
+
+.hackfix {
+  padding: 0 !important; }
+
+table.dataTable thead th, table.dataTable thead td {
+  border-bottom: 0 !important; }
+
+table.dataTable {
+  border-collapse: collapse !important; }
+
+/*# sourceMappingURL=style.css.map */
