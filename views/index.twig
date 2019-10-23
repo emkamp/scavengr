@@ -1,4 +1,21 @@
-{% extends 'layout.twig' %} {% block body %} <script>
+{% extends 'layout.twig' %} {% block body %} 
+<script>
+  function hidePast() {
+    $("#master-table tr").each(function () {
+      if ($(this).hasClass("past") || $(this).hasClass("on-call")) {
+        $(this).css("display", "none");
+      }
+    });
+  }
+
+  function showPast() {
+    $("#master-table tr").each(function () {
+      if ($(this).hasClass("past") || $(this).hasClass("on-call")) {
+        $(this).css("display", "table-row");
+      }
+    });
+  }
+
   $(document).ready(function () {
     // TABLE STUFF
     $('.oncall').html('On-call pickup only');
@@ -14,21 +31,6 @@
       }]
     });
 
-    function hidePast() {
-      $("#master-table td:nth-child(2)").each(function () {
-        if ($(this).text().indexOf("No more") != -1 || $(this).text().indexOf("On-call") != -1) {
-          $(this).parent("tr").css("display", "none");
-        }
-      });
-    }
-
-    function showPast() {
-      $("#master-table td:nth-child(2)").each(function () {
-        if ($(this).text().indexOf("No more") != -1 || $(this).text().indexOf("On-call") != -1) {
-          $(this).parent("tr").css("display", "table-row");
-        }
-      });
-    }
     $('#toggle-past').click(function () {
       if ($('#toggle-past').is(':checked')) {
         hidePast();
@@ -38,18 +40,18 @@
     });
   });
 </script>
+
 <h1><img class="logo" src="images/raccoon.svg" /> {{title}}</h1>
 <hr />
 <p>Welcome to {{title}}. We are tracking {{areacount}} areas. &nbsp; &#9758;Work in progress&#9756;</p>
-<pre id="dump"><!--a useful twig dump: dump(datearr[2].geometry[0][0])--></pre>
 <div class="row">
   <div class="col-xs-12 col-sm-6 col-md-6 col-lg-5">
     <p><input type="checkbox" id="toggle-past" name="toggle" value="0" />
       <label for="toggle-past">Hide areas that don't have any more dates this year</label></p>
     <table id="master-table" class="table table-sm table-bordered sortable">
-      <tbody> {% for object in datearr %} <tr scope="row" data-route="{{datearr[loop.index0].route}}">
+      <tbody> {% for object in datearr %} <tr scope="row" data-route="{{datearr[loop.index0].route}}" class={{datearr[loop.index0].nextdateclass}}>
           <td>{{datearr[loop.index0].route}}</td>
-          <td data-sort={{datearr[loop.index0].nextdatesortable}} class={{datearr[loop.index0].nextdateclass}}>{{datearr[loop.index0].nextdate}}</td>
+          <td data-sort={{datearr[loop.index0].nextdatesortable}}>{{datearr[loop.index0].nextdate}}</td>
         </tr> {% endfor %} </tbody>
     </table>
   </div>
@@ -60,7 +62,6 @@
   <hr />
   <p>App by <a href="mailto:emily@empul.se">emily@empul.se</a> &nbsp; | &nbsp; Icon made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">flaticon.com</a> &nbsp; | &nbsp; Data from <a href="https://data.austintexas.gov/Locations-and-Maps/Bulk-Item-Collection-Routes/qxkq-859w">The City of Austin</a></p>
 </footer> {% endblock %} 
-
 
 <script>
   // MAP STUFF
@@ -74,22 +75,19 @@
   }).addTo(mymap);
 
   var routeLayer = [];
-  //alert(title); cannot work.  alert("{{ title }}"); this works!
 
   {% for object in datearr %}
     var thisGeom = {};
     thisGeom.type = "Feature";
     thisGeom.properties = {};
     thisGeom.properties.class = {{datearr[loop.index0].nextdateclass|json_encode}}; //adding that class i flew in from index.js at same level as type and coordinates
-    thisGeom.properties.route = {{datearr[loop.index0].route}};
+    thisGeom.properties.route = "{{datearr[loop.index0].route}}";
     thisGeom.properties.datesortable = '{{datearr[loop.index0].nextdatesortable}}';
     thisGeom.geometry = {{datearr[loop.index0].geometry|json_encode}}; //object with 2 key val pairs: type:"multipolygon" and coordinates:[[array]]
     console.log(thisGeom);
     routeLayer.push(thisGeom); //add the object we just built
   {% endfor %}
-  
-  //console.log(routeLayer); //check on each region's object
-  
+    
   L.geoJSON(routeLayer, { //add appropriate style for each object in the array as we add it to the map
 	style: function(feature) {
 		switch (feature.properties.class) {
@@ -97,12 +95,28 @@
 			case 'on-call': return {color: "#a70"};
       case 'upcoming': return {color: "#092"};
 		}
-	} //add data-route here?
+	},
+  onEachFeature: onEachFeature
 }).addTo(mymap);
 
 //POPUPS
-//region.bindPopup("routeNum");
-//$("tr[data-route='routeNum']").addClass("highlighted"); //toggle when corresponding region clicked
+function onEachFeature(feature, layer) {
+	var thisRoute='';
+  // does this feature have a property named route?
+	if (feature.properties && feature.properties.route) {
+    thisRoute=feature.properties.route;
+		layer.bindPopup('Route ' + thisRoute); // make the popup for each region, with route number
+  }
+  layer.on('click', function(e) {
+    $('tr[data-route!="'+thisRoute+'"]').removeClass('highlighted');
+    $('tr[data-route="'+thisRoute+'"]').addClass('highlighted');
+    console.log(feature.properties.class);
+    if(feature.properties.class !== "upcoming"){
+      showPast();
+      $('#toggle-past').prop("checked", false);
+    }
+  }); 
+}
 
 </script>
 {% endblock %}
