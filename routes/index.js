@@ -42,7 +42,7 @@ https.get('https://data.austintexas.gov/resource/ffwg-tmw3.json', (resp) => {
       var nextNextDate = dataParsed[i].date_jul_dc;
       var nextDateSortable = sortableDate(nextDate);
       var nextDatePretty = '';
-      var nextDateClass = '';
+      var nextDateClass = 'upcoming';
 
       if (isOnCall == 'On Call') {
         nextDatePretty = 'On-call only';
