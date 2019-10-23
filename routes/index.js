@@ -12,7 +12,7 @@ var areaCount = '[area count]';
 var dataParsed = {};
 var dateArr = [];
 var today = moment().toISOString();
-console.log(" >Today is " + today);
+console.log(" =Today is " + today);
 
 function sortableDate(date) {
   moment(date, 'll').toISOString();
@@ -31,7 +31,7 @@ https.get('https://data.austintexas.gov/resource/ffwg-tmw3.json', (resp) => {
   resp.on('end', () => {
     dataParsed = JSON.parse(data);
     areaCount = Object.keys(dataParsed).length;
-    console.log(" >Tracking " + areaCount + " areas");
+    console.log(" =Tracking " + areaCount + " areas");
 
     for (var i = 0; i < areaCount; i++) {
       var thisRoute = dataParsed[i].route_labl;
@@ -81,7 +81,7 @@ https.get('https://data.austintexas.gov/resource/ffwg-tmw3.json', (resp) => {
       dateArr.push(obj);
 
       if ((i + 1) == (areaCount)) {
-        console.log(dateArr[0].geometry);
+        //console.log(dateArr[0]);
         console.log("Done!");
       }
     }
