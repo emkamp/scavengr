@@ -32,25 +32,24 @@ https.get('https://data.austintexas.gov/resource/ffwg-tmw3.json', (resp) => {
     dataParsed = JSON.parse(data);
     areaCount = Object.keys(dataParsed).length;
     console.log(" =Tracking " + areaCount + " areas");
+    //console.log(dataParsed);
 
     for (var i = 0; i < areaCount; i++) {
-      var thisRoute = dataParsed[i].route_labl;
-      var isOnCall = dataParsed[i].dat_lab_jj;
+      var thisRoute = dataParsed[i].route_name;
+      thisRoute = thisRoute.substr(2);
       var areaGeom = dataParsed[i].the_geom;
 
-      var nextDate = dataParsed[i].date_jan_jn;
-      var nextNextDate = dataParsed[i].date_jul_dc;
+      var nextDate = dataParsed[i].next_service_date;
       var nextDateSortable = sortableDate(nextDate);
       var nextDatePretty = '';
       var nextDateClass = 'upcoming';
 
-      if (isOnCall == 'On Call') {
+      if (nextDate == undefined) {
         nextDatePretty = 'On-call only';
         nextDateClass = 'on-call';
       } else {
         var next = [
-            nextDate,
-            nextNextDate
+            nextDate
           ].map(function (s) {
             return moment(s);
           })
@@ -77,11 +76,10 @@ https.get('https://data.austintexas.gov/resource/ffwg-tmw3.json', (resp) => {
         nextdateclass: nextDateClass,
         geometry: areaGeom
       };
-
       dateArr.push(obj);
 
       if ((i + 1) == (areaCount)) {
-        //console.log(dateArr[0]);
+        console.log(dateArr[0]);
         console.log("Done!");
       }
     }

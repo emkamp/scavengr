@@ -84,7 +84,7 @@
     thisGeom.properties.route = "{{datearr[loop.index0].route}}";
     thisGeom.properties.datesortable = '{{datearr[loop.index0].nextdatesortable}}';
     thisGeom.geometry = {{datearr[loop.index0].geometry|json_encode}}; //object with 2 key val pairs: type:"multipolygon" and coordinates:[[array]]
-    console.log(thisGeom);
+    //console.log(thisGeom);
     routeLayer.push(thisGeom); //add the object we just built
   {% endfor %}
     
@@ -110,7 +110,6 @@ function onEachFeature(feature, layer) {
   layer.on('click', function(e) {
     $('tr[data-route!="'+thisRoute+'"]').removeClass('highlighted');
     $('tr[data-route="'+thisRoute+'"]').addClass('highlighted');
-    console.log(feature.properties.class);
     if(feature.properties.class !== "upcoming"){
       showPast();
       $('#toggle-past').prop("checked", false);
